@@ -17,6 +17,7 @@ export class Search {
   resultados: any[] = [];
   groupedResultados: { [descripcion: string]: any[] } = {}; // <-- nuevo
   cargando = false;
+tipoDocumento = '1'; // por defecto DNI
 
   collapsedGroups: { [key: string]: boolean } = {};
   objectKeys = Object.keys;
@@ -39,15 +40,6 @@ export class Search {
   descargarResultadosExcel(): void {
     if (this.resultados.length === 0) return;
 
-    // // 1. Datos del cliente
-    // const cliente = this.resultados[0];
-    // const datosCliente = [
-    //   { 'Nombre': cliente.snombrE_COMPLETO },
-    //   { 'Doc Identidad': cliente.snrO_DOCUMENTO_ASEGURADO },
-    //   { 'Tipo Documento': cliente.stipO_DOCUMENTO_ASEGURADO },
-    //   {}, // fila vacía para separar visualmente
-    // ];
-
     // 2. Datos transformados de la tabla
     const datosTabla = this.resultados.map(item => ({
       'Id Producto': item.niD_PRODUCTO,
@@ -66,7 +58,14 @@ export class Search {
       'Fecha Fin Póliza': item.fiN_POLIZA || '-',
       'Fecha Desembolso Crédito': item.sfechA_DESEMBOLSO_CREDITO || '-',
       'Fecha Vencimiento Crédito': item.sfechA_VENCIMIENTO_CREDITO || '-',
-      'Fecha Proceso': item.sfechA_PROCESO
+      'Fecha Proceso': item.sfechA_PROCESO,
+      'Contratante': item.contratante,
+      'Canal': item.canal,
+      'Canal Vinculado': item.eS_CANAL_VINCULADO,
+      'Estado Póliza': item.estadO_POLIZA,
+      'Evento Póliza': item.eventO_POLIZA,
+      'Estado UR': item.estadO_UR,
+
     }));
 
     // 3. Unir datos cliente + tabla
@@ -84,46 +83,42 @@ export class Search {
     FileSaver.saveAs(blob, `resultados_${new Date().toISOString().slice(0, 19)}.xlsx`);
   }
 
+  
+
   buscar() {
-    if (!this.terminoBusqueda) {
-      this.resultado = 'Por favor ingrese un número de documento.';
-      return;
-    }
-
-    this.cargando = true;
-    this.resultado = '';
-    this.resultados = [];
-    this.groupedResultados = {};
-
-    console.log('Descripciones únicas:', [...new Set(this.resultados.map(x => `"${x.sdescripcioN_PRODUCTO}"`))]);
-
-    this.coverageService.getCoverage(this.terminoBusqueda).subscribe({
-      next: (response) => {
-        this.resultados = response.data || [];
-        console.log('Resultados obtenidos:', this.resultados);
-        this.resultado = `Se encontraron ${response.pagination.totalItems} registros`;
-
-        // Agrupar por sdescripcioN_PRODUCTO
-        this.groupedResultados = this.resultados.reduce((acc, item) => {
-          const rawKey = item.sdescripcioN_PRODUCTO || 'Sin descripción';
-          const key = rawKey.trim().toLowerCase(); // normalización
-          if (!acc[key]) {
-            acc[key] = [];
-          }
-          acc[key].push(item);
-          return acc;
-        }, {} as { [descripcion: string]: any[] });
-
-
-        this.cargando = false;
-      },
-      error: (err) => {
-        console.error(err);
-        this.resultado = 'Ocurrió un error al obtener los datos.';
-        this.resultados = [];
-        this.groupedResultados = {};
-        this.cargando = false;
-      }
-    });
+  if (!this.terminoBusqueda) {
+    this.resultado = 'Por favor ingrese un número de documento.';
+    return;
   }
+
+  this.cargando = true;
+  this.resultado = '';
+  this.resultados = [];
+  this.groupedResultados = {};
+
+  this.coverageService.getCoverage(this.terminoBusqueda, this.tipoDocumento).subscribe({
+    next: (response) => {
+      this.resultados = response.data || [];
+      this.resultado = `Se encontraron ${response.pagination.totalItems} registros`;
+
+      // Agrupar por descripción de producto
+      this.groupedResultados = this.resultados.reduce((acc, item) => {
+        const key = (item.sdescripcioN_PRODUCTO || 'Sin descripción').trim().toLowerCase();
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(item);
+        return acc;
+      }, {} as { [descripcion: string]: any[] });
+
+      this.cargando = false;
+    },
+    error: (err) => {
+      console.error(err);
+      this.resultado = 'Ocurrió un error al obtener los datos.';
+      this.resultados = [];
+      this.groupedResultados = {};
+      this.cargando = false;
+    }
+  });
+}
+
 }

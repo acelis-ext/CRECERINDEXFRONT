@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { Main } from './pages/main/main';
 import { Welcome} from './pages/welcome/welcome';
+import { authGuard } from '../../core/guards/auth.guard';
 
 export const mainRoutes: Routes = [
   {

@@ -18,7 +18,10 @@
       </button>
     </div>
   </form> -->
-<form class="space-y-4 w-full">
+
+
+  
+<!-- <form class="space-y-4 w-full">
   <label for="termino" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
     Ingrese DNI
   </label>
@@ -28,9 +31,47 @@
       id="termino"
       type="text"
       [(ngModel)]="terminoBusqueda"
+      (ngModelChange)="terminoBusqueda = $event.trim()"
       name="termino"
       class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white"
       placeholder="Escribe el número de documento..."
+    />
+
+    <button
+      type="button"
+      (click)="buscar()"
+      class="bg-[#205eaa] text-white px-4 py-2 rounded-md hover:bg-[#307FDE] transition-all"
+    >
+      Buscar
+    </button>
+  </div>
+</form> -->
+
+
+<form class="space-y-4 w-full">
+  <label for="termino" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+    Busque por documento
+  </label>
+
+  <div class="flex gap-2">
+    <select
+      [(ngModel)]="tipoDocumento"
+      name="tipoDocumento"
+      class="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white"
+    >
+      <option value="1">DNI</option>
+      <option value="4">Carnet de Extranjería</option>
+      <option value="6">RUC</option>
+      <option value="7">Pasaporte</option>
+    </select>
+
+    <input
+      id="termino"
+      type="text"
+      [(ngModel)]="terminoBusqueda"
+      name="termino"
+      class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white"
+      placeholder="Ingrese el número de documento..."
     />
 
     <button
@@ -128,6 +169,13 @@
                 <th class="px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Fecha Vencimiento
                   Crédito</th>
                 <th class="px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Fecha Proceso</th>
+                <th class="px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Contratante</th>
+                <th class="px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Canal</th>
+                <th class="px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Canal Vinculado</th>
+                <th class="px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Estado Póliza</th>
+                <th class="px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Evento</th>
+                <th class="px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Estado UR</th>
+
               </tr>
             </thead>
             <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
@@ -150,6 +198,13 @@
                 <td class="px-4 py-2 text-sm text-gray-800 dark:text-gray-200">{{ item.sfechA_VENCIMIENTO_CREDITO || '-'
                   }}</td>
                 <td class="px-4 py-2 text-sm text-gray-800 dark:text-gray-200">{{ item.sfechA_PROCESO }}</td>
+                <td class="px-4 py-2 text-sm text-gray-800 dark:text-gray-200">{{ item.contratante || '-' }}</td>
+                <td class="px-4 py-2 text-sm text-gray-800 dark:text-gray-200">{{ item.canal || '-' }}</td>
+                <td class="px-4 py-2 text-sm text-gray-800 dark:text-gray-200">{{ item.eS_CANAL_VINCULADO || '-' }}</td>
+                <td class="px-4 py-2 text-sm text-gray-800 dark:text-gray-200">{{ item.estadO_POLIZA || '-' }}</td>
+                <td class="px-4 py-2 text-sm text-gray-800 dark:text-gray-200">{{ item.eventO_POLIZA || '-' }}</td>
+                <td class="px-4 py-2 text-sm text-gray-800 dark:text-gray-200">{{ item.estadO_UR || '-' }}</td>
+
               </tr>
             </tbody>
           </table>

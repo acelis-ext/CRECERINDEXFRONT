@@ -26,6 +26,7 @@ export class LoginPage {
   }
 
   login() {
+    this.tokenservices.clearToken();
     if (this.form.invalid) return;
 
     this.loading = true;
