@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { TokenService } from '../../../core/services/token.service';
 import { Router } from '@angular/router';
 import { environment } from '../../../../environments/environments';
+import { CoverageItem, CoverageResponse } from '../models/data.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -46,9 +47,10 @@ export class SearchService {
       totalPages: 0
     }
   };
-
-  return this.http.post<any>(this.apiUrl, payload);
+ console.log('Payload:', payload);
+  return this.http.post<CoverageResponse>(this.apiUrl, payload);
 }
+
 
   private getDocumentType(doc: string): string {
     switch (doc.length) {

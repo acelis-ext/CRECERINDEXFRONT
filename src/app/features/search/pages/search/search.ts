@@ -5,6 +5,8 @@ import { RouterModule } from '@angular/router';
 import { SearchService } from '../../services/search.service';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
+import { HttpErrorResponse } from '@angular/common/http';
+import { from } from 'rxjs';
 @Component({
   selector: 'app-search',
   imports: [CommonModule, RouterModule, FormsModule],
@@ -85,7 +87,43 @@ tipoDocumento = '1'; // por defecto DNI
 
   
 
-  buscar() {
+//   buscar() {
+//   if (!this.terminoBusqueda) {
+//     this.resultado = 'Por favor ingrese un número de documento.';
+//     return;
+//   }
+
+//   this.cargando = true;
+//   this.resultado = '';
+//   this.resultados = [];
+//   this.groupedResultados = {};
+
+//   this.coverageService.getCoverage(this.terminoBusqueda, this.tipoDocumento).subscribe({
+//     next: (response) => {
+//       this.resultados = response.data || [];
+//       this.resultado = `Se encontraron ${response.pagination.totalItems} registros`;
+
+//       // Agrupar por descripción de producto
+//       this.groupedResultados = this.resultados.reduce((acc, item) => {
+//         const key = (item.sdescripcioN_PRODUCTO || 'Sin descripción').trim().toLowerCase();
+//         if (!acc[key]) acc[key] = [];
+//         acc[key].push(item);
+//         return acc;
+//       }, {} as { [descripcion: string]: any[] });
+
+//       this.cargando = false;
+//     },
+//     error: (err) => {
+//       console.error(err);
+//       this.resultado = 'Ocurrió un error al obtener los datos.';
+//       this.resultados = [];
+//       this.groupedResultados = {};
+//       this.cargando = false;
+//     }
+//   });
+// }
+
+buscar() {
   if (!this.terminoBusqueda) {
     this.resultado = 'Por favor ingrese un número de documento.';
     return;
@@ -99,26 +137,114 @@ tipoDocumento = '1'; // por defecto DNI
   this.coverageService.getCoverage(this.terminoBusqueda, this.tipoDocumento).subscribe({
     next: (response) => {
       this.resultados = response.data || [];
-      this.resultado = `Se encontraron ${response.pagination.totalItems} registros`;
+      this.resultado = `Se encontraron ${response.pagination?.totalItems ?? this.resultados.length} registros`;
 
       // Agrupar por descripción de producto
       this.groupedResultados = this.resultados.reduce((acc, item) => {
         const key = (item.sdescripcioN_PRODUCTO || 'Sin descripción').trim().toLowerCase();
-        if (!acc[key]) acc[key] = [];
-        acc[key].push(item);
+        (acc[key] ||= []).push(item);
         return acc;
       }, {} as { [descripcion: string]: any[] });
 
       this.cargando = false;
     },
-    error: (err) => {
-      console.error(err);
-      this.resultado = 'Ocurrió un error al obtener los datos.';
+    error: (err: HttpErrorResponse) => {
+      // Log básico
+      console.error('[HTTP ERROR]', err);
+
+      // Log detallado
+      this.logHttpErrorDetalles(err);
+
+      // Mensaje amigable para el usuario
+      this.resultado = this.mensajeUsuarioPorError(err);
       this.resultados = [];
       this.groupedResultados = {};
       this.cargando = false;
     }
   });
+}
+
+/** Imprime en consola TODA la info útil del error, incluso si viene como Blob */
+private logHttpErrorDetalles(err: HttpErrorResponse) {
+  const base = {
+    status: err.status,
+    statusText: err.statusText,
+    url: err.url,
+    message: err.message,
+  };
+  console.groupCollapsed('%c⛔ Detalle de error HTTP', 'color:#b00;font-weight:bold;');
+  console.log('Base:', base);
+
+  // 1) Si el body ya es objeto/string:
+  if (err.error && !(err.error instanceof Blob)) {
+    try {
+      console.log('Body (objeto/string):', typeof err.error === 'string' ? err.error : JSON.stringify(err.error, null, 2));
+      // Si es ProblemDetails/ValidationProblemDetails de ASP.NET Core:
+      const anyErr: any = err.error;
+      if (anyErr?.title || anyErr?.detail || anyErr?.errors) {
+        console.table({
+          title: anyErr.title,
+          detail: anyErr.detail,
+          type: anyErr.type,
+          instance: anyErr.instance,
+        });
+        if (anyErr.errors) {
+          console.log('Validation errors:', anyErr.errors);
+        }
+      }
+    } catch {
+      console.log('Body (raw):', err.error);
+    }
+    console.groupEnd();
+    return;
+  }
+
+  // 2) Si el body viene como Blob (p.ej. texto/JSON desde ASP.NET con UseExceptionHandler)
+  if (err.error instanceof Blob) {
+    const mime = err.error.type || 'application/octet-stream';
+    console.log('Body es Blob. type:', mime, 'size:', err.error.size);
+    // Intentar leerlo como texto
+    from(err.error.text()).subscribe({
+      next: (text) => {
+        console.log('Blob (texto):', text);
+        try {
+          const parsed = JSON.parse(text);
+          console.log('Blob parseado a JSON:', parsed);
+        } catch {
+          // no era JSON
+        }
+        console.groupEnd();
+      },
+      error: (blobReadErr) => {
+        console.warn('No se pudo leer el Blob:', blobReadErr);
+        console.groupEnd();
+      }
+    });
+    return;
+  }
+
+  // 3) Caso sin body
+  console.log('Sin cuerpo de error (err.error es null/undefined)');
+  console.groupEnd();
+}
+
+/** Devuelve un mensaje legible para UI según el tipo de fallo */
+private mensajeUsuarioPorError(err: HttpErrorResponse): string {
+  if (err.status === 0) {
+    // Desconexión, CORS, SSL o servidor caído
+    return 'No se pudo conectar con el servidor (posible CORS/SSL/servidor caído). Ver consola para detalles.';
+  }
+
+  // Si el backend envía ProblemDetails con title/detail
+  const anyErr: any = err.error;
+  const detail =
+    anyErr?.detail ??
+    anyErr?.title ??
+    (typeof anyErr === 'string' ? anyErr : null);
+
+  return detail
+    ? `Error ${err.status} ${err.statusText}: ${detail}`
+    : `Error ${err.status} ${err.statusText}. Revisa la consola para más detalles.`;
 }
 
 }
