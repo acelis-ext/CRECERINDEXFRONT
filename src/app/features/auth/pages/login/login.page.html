@@ -1,28 +1,28 @@
 <div class="min-h-screen flex items-center justify-center bg-[#DFEBFA] px-4 dark:bg-gray-900">
   <div class="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg w-full max-w-md transition-all duration-300">
-  <img src="crecerlogo.png" alt="Logo" class="w-60 mx-auto mb-6" />
+    <img src="crecerlogo.png" alt="Logo" class="w-60 mx-auto mb-6" />
 
-    <!-- <h2 class="text-2xl sm:text-3xl font-bold mb-6 text-center text-gray-800 dark:text-white">
-      Iniciar sesión
-    </h2> -->
+    <!-- Alerta de error -->
     <div *ngIf="errorMsg" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
-  <strong class="font-bold">¡Error!</strong>
-  <span class="block sm:inline">{{ errorMsg }}</span>
-</div>
+      <strong class="font-bold">¡Error!</strong>
+      <span class="block sm:inline">{{ errorMsg }}</span>
+    </div>
+
     <form [formGroup]="form" (ngSubmit)="login()" class="space-y-4">
-      <!-- Campo usuario -->
+      <!-- Usuario -->
       <div>
         <label for="usuario" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Usuario</label>
         <div class="mt-1 relative">
           <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-            <!-- Heroicon user -->
-            <svg class="h-5 w-5 text-gray-400 dark:text-gray-300" fill="none" stroke="currentColor" stroke-width="1.5"
-              viewBox="0 0 24 24">
+            <svg class="h-5 w-5 text-gray-400 dark:text-gray-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
-                d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 1115 0" />
+                    d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 1115 0"/>
             </svg>
           </span>
-          <input type="text" id="usuario" formControlName="usuario"
+          <input
+            id="usuario"
+            type="text"
+            formControlName="usuario"
             class="block w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="Tu usuario" />
         </div>
@@ -31,19 +31,20 @@
         </div>
       </div>
 
-      <!-- Campo contraseña -->
+      <!-- Contraseña -->
       <div>
         <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Contraseña</label>
         <div class="mt-1 relative">
           <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-            <!-- Heroicon lock -->
-            <svg class="h-5 w-5 text-gray-400 dark:text-gray-300" fill="none" stroke="currentColor" stroke-width="1.5"
-              viewBox="0 0 24 24">
+            <svg class="h-5 w-5 text-gray-400 dark:text-gray-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
-                d="M16.5 10.5v-2a4.5 4.5 0 00-9 0v2M5.25 10.5h13.5v9a2.25 2.25 0 01-2.25 2.25H7.5A2.25 2.25 0 015.25 19.5v-9z" />
+                    d="M16.5 10.5v-2a4.5 4.5 0 00-9 0v2M5.25 10.5h13.5v9a2.25 2.25 0 01-2.25 2.25H7.5A2.25 2.25 0 015.25 19.5v-9z"/>
             </svg>
           </span>
-          <input type="password" id="password" formControlName="password"
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
             class="block w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="••••••••" />
         </div>
@@ -52,21 +53,35 @@
         </div>
       </div>
 
+      <!-- reCAPTCHA -->
+      <div class="mt-2">
+        <re-captcha
+          #captchaRef
+          [siteKey]="siteKey"
+          (resolved)="validateCaptcha($event)"
+          (expired)="onCaptchaExpired()"
+          (error)="onCaptchaError($event)">
+        </re-captcha>
+
+        <div *ngIf="!bCaptchaValid && form.touched" class="text-sm text-red-600 mt-1">
+          Por favor, resuelve el captcha.
+        </div>
+      </div>
+
       <!-- Botón -->
-      <!-- Botón -->
-      <button type="submit" [disabled]="form.invalid || loading"
+      <button
+        type="submit"
+        [disabled]="form.invalid || loading || !bCaptchaValid"
         class="w-full bg-[#002060] hover:bg-[#307FDE] text-white font-semibold py-2 px-4 rounded-md transition-colors disabled:opacity-50 flex justify-center items-center gap-2">
         <ng-container *ngIf="!loading; else loadingTpl">Ingresar</ng-container>
         <ng-template #loadingTpl>
-          <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-            viewBox="0 0 24 24">
+          <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
           </svg>
           Cargando…
         </ng-template>
       </button>
-
     </form>
   </div>
 </div>

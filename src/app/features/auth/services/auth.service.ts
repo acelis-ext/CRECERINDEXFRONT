@@ -14,9 +14,10 @@ export class AuthService {
   private tokenService = inject(TokenService);
   private router = inject(Router);
 
-  login(usuario: string, password: string) {
-    return this.http.post<{ token: string }>(`${this.endpoint}Auth/login`, { usuario, password });
-  }
+login(usuario: string, password: string, scaptchatoken: string) {
+  return this.http.post<{ token: string }>(`${this.endpoint}Auth/login`, { usuario, password, scaptchatoken });
+}
+
 
   /** Revoca en server y limpia cliente pase lo que pase */
   async logout(): Promise<void> {
@@ -30,6 +31,7 @@ export class AuthService {
     } finally {
       this.router.navigateByUrl('/login');
       setTimeout(() => window.history.pushState({}, '', '/login'));
+      console.log('Usuario desconectado y redirigido a login');
     }
   }
 }

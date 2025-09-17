@@ -86,48 +86,48 @@ tipoDocumento = '1'; // por defecto DNI
   }
 
   
+private lastSearchTs = 0;
 
-//   buscar() {
-//   if (!this.terminoBusqueda) {
-//     this.resultado = 'Por favor ingrese un número de documento.';
-//     return;
-//   }
+get clienteDatos() {
+  if (!this.resultados?.length) return { nombre: '-', doc: '-', tipo: '-' };
 
-//   this.cargando = true;
-//   this.resultado = '';
-//   this.resultados = [];
-//   this.groupedResultados = {};
+  // 1) Con nombre/razón social
+  const conNombre = this.resultados.find(r =>
+    (r?.snombrE_COMPLETO && r.snombrE_COMPLETO.trim()) ||
+    (r?.snombreS_RAZONSOCIAL_ASEGURADO && r.snombreS_RAZONSOCIAL_ASEGURADO.trim())
+  );
 
-//   this.coverageService.getCoverage(this.terminoBusqueda, this.tipoDocumento).subscribe({
-//     next: (response) => {
-//       this.resultados = response.data || [];
-//       this.resultado = `Se encontraron ${response.pagination.totalItems} registros`;
+  // 2) O al menos con doc/tipo
+  const conDoc = conNombre ?? this.resultados.find(r =>
+    (r?.snrO_DOCUMENTO_ASEGURADO && r.snrO_DOCUMENTO_ASEGURADO.trim()) ||
+    (r?.stipO_DOCUMENTO_ASEGURADO && r.stipO_DOCUMENTO_ASEGURADO.trim())
+  );
 
-//       // Agrupar por descripción de producto
-//       this.groupedResultados = this.resultados.reduce((acc, item) => {
-//         const key = (item.sdescripcioN_PRODUCTO || 'Sin descripción').trim().toLowerCase();
-//         if (!acc[key]) acc[key] = [];
-//         acc[key].push(item);
-//         return acc;
-//       }, {} as { [descripcion: string]: any[] });
+  const src = conDoc ?? this.resultados[0];
 
-//       this.cargando = false;
-//     },
-//     error: (err) => {
-//       console.error(err);
-//       this.resultado = 'Ocurrió un error al obtener los datos.';
-//       this.resultados = [];
-//       this.groupedResultados = {};
-//       this.cargando = false;
-//     }
-//   });
-// }
+  const nombre =
+    src?.snombrE_COMPLETO?.trim() ||
+    src?.snombreS_RAZONSOCIAL_ASEGURADO?.trim() || '-';
+
+  const doc =
+    src?.snrO_DOCUMENTO_ASEGURADO?.trim() ||
+    this.terminoBusqueda?.trim() || '-';
+
+  const tipo = (src?.stipO_DOCUMENTO_ASEGURADO?.trim()) || this.labelTipoDoc(this.tipoDocumento);
+
+  return { nombre, doc, tipo };
+}
+
+private labelTipoDoc(code: string | number | null | undefined) {
+  const map: Record<string, string> = { '1': 'DNI', '4': 'Carnet de Extranjería', '6': 'RUC', '7': 'Pasaporte' };
+  return map[String(code ?? '').trim()] ?? '-';
+}
 
 buscar() {
-  if (!this.terminoBusqueda) {
-    this.resultado = 'Por favor ingrese un número de documento.';
-    return;
-  }
+  if (!this.terminoBusqueda) { this.resultado = 'Por favor ingrese un número de documento.'; return; }
+
+  const ts = Date.now();
+  this.lastSearchTs = ts;
 
   this.cargando = true;
   this.resultado = '';
@@ -136,10 +136,10 @@ buscar() {
 
   this.coverageService.getCoverage(this.terminoBusqueda, this.tipoDocumento).subscribe({
     next: (response) => {
+      if (ts !== this.lastSearchTs) return; // respuesta vieja: ignórala
       this.resultados = response.data || [];
       this.resultado = `Se encontraron ${response.pagination?.totalItems ?? this.resultados.length} registros`;
-
-      // Agrupar por descripción de producto
+      console.log('Resultados crudos:', this.resultados);
       this.groupedResultados = this.resultados.reduce((acc, item) => {
         const key = (item.sdescripcioN_PRODUCTO || 'Sin descripción').trim().toLowerCase();
         (acc[key] ||= []).push(item);
@@ -148,14 +148,10 @@ buscar() {
 
       this.cargando = false;
     },
-    error: (err: HttpErrorResponse) => {
-      // Log básico
+    error: (err) => {
+      if (ts !== this.lastSearchTs) return;
       console.error('[HTTP ERROR]', err);
-
-      // Log detallado
       this.logHttpErrorDetalles(err);
-
-      // Mensaje amigable para el usuario
       this.resultado = this.mensajeUsuarioPorError(err);
       this.resultados = [];
       this.groupedResultados = {};

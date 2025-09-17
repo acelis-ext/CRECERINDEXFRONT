@@ -115,15 +115,21 @@
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-gray-700 dark:text-gray-300">
       <div>
         <span class="font-medium">Nombre:</span>
-        <span class="ml-2 text-gray-900 dark:text-white">{{ resultados[0].snombrE_COMPLETO }}</span>
+        <!-- <span class="ml-2 text-gray-900 dark:text-white">{{ resultados[0].snombrE_COMPLETO }}</span> -->
+        <span class="ml-2">{{ clienteDatos.nombre }}</span>
+
       </div>
       <div>
         <span class="font-medium">Doc Identidad:</span>
-        <span class="ml-2 text-gray-900 dark:text-white">{{ resultados[0].snrO_DOCUMENTO_ASEGURADO }}</span>
+        <!-- <span class="ml-2 text-gray-900 dark:text-white">{{ resultados[0].snrO_DOCUMENTO_ASEGURADO }}</span> -->
+        <span class="ml-2">{{ clienteDatos.doc }}</span>
+
       </div>
       <div>
         <span class="font-medium">Tipo Documento:</span>
-        <span class="ml-2 text-gray-900 dark:text-white">{{ resultados[0].stipO_DOCUMENTO_ASEGURADO }}</span>
+        <!-- <span class="ml-2 text-gray-900 dark:text-white">{{ resultados[0].stipO_DOCUMENTO_ASEGURADO }}</span> -->
+        <span class="ml-2">{{ clienteDatos.tipo }}</span>
+
       </div>
     </div>
   </div>
