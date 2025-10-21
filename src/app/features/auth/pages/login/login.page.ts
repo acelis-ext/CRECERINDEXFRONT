@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -15,7 +15,7 @@ import { environment } from '../../../../../environments/environments';
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.css']
 })
-export class LoginPage {
+export class LoginPage implements OnInit {
   form: FormGroup;
   loading = false;
   errorMsg: string | null = null;
@@ -37,6 +37,12 @@ export class LoginPage {
       scaptchatoken: ['', Validators.required]
     });
   }
+
+
+    ngOnInit() {
+    this.tokenService.clearToken();
+  }
+
 
   // ---- reCAPTCHA handlers ----
   validateCaptcha(token: string | null) {
