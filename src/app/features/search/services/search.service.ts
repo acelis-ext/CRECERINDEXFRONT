@@ -11,7 +11,7 @@ import { CoverageItem, CoverageResponse } from '../models/data.interface';
 export class SearchService {
   
   private http = inject(HttpClient);
-  private endpoint = environment.apiBaseUrl;
+  private endpoint = environment.apiBaseUrl+'/api/';
   private apiUrl = `${this.endpoint}Coverage/getIndexData`;
 
 

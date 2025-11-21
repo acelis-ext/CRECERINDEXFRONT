@@ -10,7 +10,7 @@ import { finalize, firstValueFrom } from 'rxjs';
 })
 export class AuthService {
    private http = inject(HttpClient);
-  private endpoint = environment.apiBaseUrl;
+  private endpoint = environment.apiBaseUrl+'/api/';
   private tokenService = inject(TokenService);
   private router = inject(Router);
 
