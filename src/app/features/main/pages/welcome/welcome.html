@@ -1,24 +1,24 @@
-<div class="text-center py-10 px-4">
-    <!-- Título -->
-    <h1 class=" text-3xl md:text-4xl font-semibold tracking-tight text-[#002060] flex items-center justify-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-[#002060]" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-            <path
-                d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-            <path
-                d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66" />
-            <path d="m18 15-2-2" />
-            <path d="m15 18-2-2" />
+<div class="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+    
+    <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-[#002060] flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 sm:w-10 sm:h-10 text-[#002060]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+            <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66" />
+            <path d="m18 15-2-2" /><path d="m15 18-2-2" />
         </svg>
-        Bienvenido, {{ user?.nombre }} {{ user?.apellido }}
+        <span>Bienvenido, {{ user?.nombre }}</span>
     </h1>
 
+    <div class="mt-8 sm:mt-10 mb-8 w-full flex justify-center">
+      <img 
+        src="logo_principal.png" 
+        alt="Logo Crecer Seguros" 
+        class="h-32 sm:h-48 md:h-64 w-auto object-contain drop-shadow-md" 
+      />
+    </div>
 
-    <!-- Imagen -->
-    <img src="logo_principal.png" alt="Logo Crecer Seguros" class=" h-50 w-auto mx-auto mt-6  max-w-xs md:max-w-md lg:max-w-xl" />
-
-    <!-- Texto -->
-    <p class="mt-6 text-base md:text-lg text-[#307FDE] font-medium ">
-        Selecciona una opción del menú para comenzar.
+    <p class="text-sm sm:text-base md:text-lg text-[#307FDE] font-medium max-w-md mx-auto leading-relaxed">
+        Selecciona una opción del menú <span class="sm:hidden">(arriba a la derecha)</span> para comenzar a gestionar sus pólizas.
     </p>
+
 </div>
