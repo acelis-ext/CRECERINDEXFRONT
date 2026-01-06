@@ -27,6 +27,8 @@ export interface CoverageItem {
   estadO_UR: string;
   inI_POLIZA: string;
   fiN_POLIZA: string;
+  rol: string;
+
 }
 
 export interface CoverageResponse {
