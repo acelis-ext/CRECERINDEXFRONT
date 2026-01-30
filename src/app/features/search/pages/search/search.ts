@@ -92,110 +92,95 @@ private ultimaBusqueda = '';
   
 private lastSearchTs = 0;
 
+
 // get clienteDatos() {
 //   if (!this.resultados?.length) return { nombre: '-', doc: '-', tipo: '-' };
 
-//   // 1) Con nombre/razón social
+//   // 1) Buscar registro con documento del asegurado (prioridad máxima)
+//   const conDoc = this.resultados.find(r =>
+//     r?.snrO_DOCUMENTO_ASEGURADO && r.snrO_DOCUMENTO_ASEGURADO.trim()
+//   );
+
+//   // 2) Buscar registro con nombre/razón social
 //   const conNombre = this.resultados.find(r =>
 //     (r?.snombrE_COMPLETO && r.snombrE_COMPLETO.trim()) ||
 //     (r?.snombreS_RAZONSOCIAL_ASEGURADO && r.snombreS_RAZONSOCIAL_ASEGURADO.trim())
 //   );
 
-//   // 2) O al menos con doc/tipo
-//   const conDoc = conNombre ?? this.resultados.find(r =>
-//     (r?.snrO_DOCUMENTO_ASEGURADO && r.snrO_DOCUMENTO_ASEGURADO.trim()) ||
-//     (r?.stipO_DOCUMENTO_ASEGURADO && r.stipO_DOCUMENTO_ASEGURADO.trim())
-//   );
-
-//   const src = conDoc ?? this.resultados[0];
-
-//   const nombre =
-//     src?.snombrE_COMPLETO?.trim() ||
-//     src?.snombreS_RAZONSOCIAL_ASEGURADO?.trim() || '-';
-
-//   const doc =
-//     src?.snrO_DOCUMENTO_ASEGURADO?.trim() ||
-//     this.terminoBusqueda?.trim() || '-';
-
-//   const tipo = (src?.stipO_DOCUMENTO_ASEGURADO?.trim()) || this.labelTipoDoc(this.tipoDocumento);
-
-//   return { nombre, doc, tipo };
-// }
-
-// get clienteDatos() {
-//   if (!this.resultados?.length) return { nombre: '-', doc: '-', tipo: '-' };
-
-//   // 1) Buscar registro con nombre/razón social del asegurado
-//   const conNombre = this.resultados.find(r =>
-//     (r?.snombrE_COMPLETO && r.snombrE_COMPLETO.trim()) ||
-//     (r?.snombreS_RAZONSOCIAL_ASEGURADO && r.snombreS_RAZONSOCIAL_ASEGURADO.trim())
-//   );
-
-//   // 2) Si no hay, buscar registro con contratante (cuando rol = CONTRATANTE)
+//   // 3) Buscar registro con contratante
 //   const conContratante = this.resultados.find(r =>
 //     r?.contratante && r.contratante.trim()
 //   );
 
-//   // 3) O al menos con doc/tipo
-//   const conDoc = conNombre ?? conContratante ?? this.resultados.find(r =>
-//     (r?.snrO_DOCUMENTO_ASEGURADO && r.snrO_DOCUMENTO_ASEGURADO.trim()) ||
-//     (r?.stipO_DOCUMENTO_ASEGURADO && r.stipO_DOCUMENTO_ASEGURADO.trim())
-//   );
+//   const src = conDoc ?? conNombre ?? conContratante ?? this.resultados[0];
 
-//   const src = conDoc ?? this.resultados[0];
-
-//   // Prioridad: nombre completo > razón social > contratante
 //   const nombre =
 //     src?.snombrE_COMPLETO?.trim() ||
 //     src?.snombreS_RAZONSOCIAL_ASEGURADO?.trim() ||
 //     src?.contratante?.trim() || '-';
 
+//   // Prioridad: documento del backend > término de búsqueda guardado
 //   const doc =
-//     src?.snrO_DOCUMENTO_ASEGURADO?.trim() ||
-//     this.terminoBusqueda?.trim() || '-';
+//     conDoc?.snrO_DOCUMENTO_ASEGURADO?.trim() ||
+//     this.ultimaBusqueda?.trim() || '-';
 
 //   const tipo = 
-//     src?.stipO_DOCUMENTO_ASEGURADO?.trim() || 
+//     conDoc?.stipO_DOCUMENTO_ASEGURADO?.trim() || 
 //     this.labelTipoDoc(this.tipoDocumento);
 
 //   return { nombre, doc, tipo };
 // }
 
-
-
 get clienteDatos() {
   if (!this.resultados?.length) return { nombre: '-', doc: '-', tipo: '-' };
 
-  // 1) Buscar registro con documento del asegurado (prioridad máxima)
+  // Si se buscó por RUC de empresa (11 dígitos y empieza con 20)
+  const esRucEmpresa = this.ultimaBusqueda?.length === 11 && this.ultimaBusqueda.startsWith('20');
+
+  if (esRucEmpresa) {
+    // Mostrar datos de la EMPRESA (contratante)
+    const conContratante = this.resultados.find(r => r?.contratante && r.contratante.trim());
+    const src = conContratante ?? this.resultados[0];
+
+    return {
+      nombre: src?.contratante?.trim() || src?.snombreS_RAZONSOCIAL_ASEGURADO?.trim() || '-',
+      doc: this.ultimaBusqueda?.trim() || '-',
+      tipo: 'RUC'
+    };
+  }
+
+  // Si NO es RUC empresa, mostrar datos del ASEGURADO (trabajador)
+  
+  // 1) Buscar registro con documento del asegurado
   const conDoc = this.resultados.find(r =>
     r?.snrO_DOCUMENTO_ASEGURADO && r.snrO_DOCUMENTO_ASEGURADO.trim()
   );
 
-  // 2) Buscar registro con nombre/razón social
+  // 2) Buscar registro con nombre completo
   const conNombre = this.resultados.find(r =>
     (r?.snombrE_COMPLETO && r.snombrE_COMPLETO.trim()) ||
     (r?.snombreS_RAZONSOCIAL_ASEGURADO && r.snombreS_RAZONSOCIAL_ASEGURADO.trim())
   );
 
-  // 3) Buscar registro con contratante
+  // 3) Buscar registro con contratante (para ACSELe que usa este campo)
   const conContratante = this.resultados.find(r =>
     r?.contratante && r.contratante.trim()
   );
 
   const src = conDoc ?? conNombre ?? conContratante ?? this.resultados[0];
 
+  // Prioridad para nombre: snombrE_COMPLETO > snombreS_RAZONSOCIAL_ASEGURADO > contratante
   const nombre =
     src?.snombrE_COMPLETO?.trim() ||
     src?.snombreS_RAZONSOCIAL_ASEGURADO?.trim() ||
     src?.contratante?.trim() || '-';
 
-  // Prioridad: documento del backend > término de búsqueda guardado
   const doc =
     conDoc?.snrO_DOCUMENTO_ASEGURADO?.trim() ||
     this.ultimaBusqueda?.trim() || '-';
 
-  const tipo = 
-    conDoc?.stipO_DOCUMENTO_ASEGURADO?.trim() || 
+  const tipo =
+    conDoc?.stipO_DOCUMENTO_ASEGURADO?.trim() ||
     this.labelTipoDoc(this.tipoDocumento);
 
   return { nombre, doc, tipo };
@@ -206,7 +191,15 @@ private labelTipoDoc(code: string | number | null | undefined) {
   return map[String(code ?? '').trim()] ?? '-';
 }
 
+
+limpiarEspacios() {
+  this.terminoBusqueda = this.terminoBusqueda.replace(/\s/g, '');
+}
+
 buscar() {
+
+    this.terminoBusqueda = this.terminoBusqueda.replace(/\s/g, '').trim();
+
   if (!this.terminoBusqueda) { this.resultado = 'Por favor ingrese un número de documento.'; return; }
 
     // Guardar el término al momento de buscar
