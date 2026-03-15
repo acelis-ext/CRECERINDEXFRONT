@@ -83,7 +83,13 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.34-4.34"/></svg>
                 <span>Buscar</span>
             </button>
+              <button (click)="navigateAndCloseSidebar('searchmassive')"
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-white/10 hover:bg-white/20 text-white font-medium transition-all active:scale-95">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.34-4.34"/></svg>
+                <span>Buscar Masivo SBS</span>
+            </button>
         </nav>
+
 
         <div class="mt-8 pb-4">
             <button (click)="logout()"

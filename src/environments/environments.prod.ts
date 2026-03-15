@@ -13,11 +13,11 @@ export const environment = {
   //ESTE ES PARA HACER LOS PASE A QA (AZURE Frontdoor)
   //produccion
   //por cambios de vnet privada se va dejar vacio el apiBaseUrl SAME-ORIGIN REQUEST
-  apiBaseUrl: '',
+  // apiBaseUrl: '',
 
 
   //ESTE ES PARA HACER LOS PASES A PRODUCCION EN EL DMZ SERVIDOR LOCAL
-  // apiBaseUrl: 'https://api-index.crecerseguros.pe', 
+  apiBaseUrl: 'https://api-index.crecerseguros.pe', 
 
   
   CAPTCHA_KEY: '6LfdwNArAAAAAMf0LQIrbfg27Qvqsgf-w3OOHZDS' // clave de prueba pública de Google

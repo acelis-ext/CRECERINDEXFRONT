@@ -17,6 +17,11 @@ export const mainRoutes: Routes = [
         path: 'search',
         loadChildren: () =>
           import('../search/search.route').then(m => m.searchRoutes)
+      },
+      {
+        path: 'searchmassive',
+        loadChildren: () =>
+          import('../searchmassive/searchmassive.route').then(m => m.searchMassiveRoutes)
       }
     ]
   }
