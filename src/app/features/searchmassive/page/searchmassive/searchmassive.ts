@@ -374,12 +374,14 @@ export class Searchmassive {
   descargaLista = false;
 
   // Tabla de tipos válidos para mostrar en la UI
+
+
   tiposDocumentoValidos = [
-    { label: 'DNI', valores: 'DNI', codigo: '1' },
-    { label: 'C. Extranjería', valores: 'CE, C. EXTRANJERÍA, C. EXTRANJERIA, CARNET DE EXTRANJERÍA, CARNET DE EXTRANJERIA', codigo: '4' },
-    { label: 'RUC', valores: 'RUC', codigo: '6' },
-    { label: 'Pasaporte', valores: 'PASAPORTE, PAS', codigo: '7' },
-  ];
+  { label: 'DNI', valores: 'DNI', codigo: '1' },
+  { label: 'C. Extranjería', valores: 'CE', codigo: '4' },
+  { label: 'RUC', valores: 'RUC', codigo: '6' },
+  { label: 'Pasaporte', valores: 'PAS', codigo: '7' },
+];
 
   constructor(private coverageService: SearchService) {}
 
@@ -443,20 +445,33 @@ export class Searchmassive {
     reader.readAsArrayBuffer(file);
   }
 
+  // private mapTipoDocumento(label: string): string {
+  //   const mapa: Record<string, string> = {
+  //     'DNI': '1',
+  //     'C. EXTRANJERÍA': '4',
+  //     'C. EXTRANJERIA': '4',
+  //     'CE': '4',
+  //     'CARNET DE EXTRANJERÍA': '4',
+  //     'CARNET DE EXTRANJERIA': '4',
+  //     'RUC': '6',
+  //     'PASAPORTE': '7',
+  //     'PAS': '7',
+  //   };
+  //   return mapa[label.toUpperCase()] ?? '1';
+  // }}
+
+
   private mapTipoDocumento(label: string): string {
-    const mapa: Record<string, string> = {
-      'DNI': '1',
-      'C. EXTRANJERÍA': '4',
-      'C. EXTRANJERIA': '4',
-      'CE': '4',
-      'CARNET DE EXTRANJERÍA': '4',
-      'CARNET DE EXTRANJERIA': '4',
-      'RUC': '6',
-      'PASAPORTE': '7',
-      'PAS': '7',
-    };
-    return mapa[label.toUpperCase()] ?? '1';
-  }
+  const mapa: Record<string, string> = {
+    'DNI': '1',
+    'CE': '4',
+    'RUC': '6',
+    'PAS': '7',
+  };
+  return mapa[label.toUpperCase()] ?? '1';
+}
+
+
 
   async procesarMasivo() {
     if (this.filasLeidas.length === 0) return;
